@@ -23,6 +23,7 @@ def get_content(url, pdata=None):
 def parse_job_description(url):
     print "Parsing job description for", url
     content = get_content(url)
+    time.sleep(1)
     soup = BeautifulSoup(content)
     text = soup.find("div", attrs={"class":"job_detail_left_wrapper"}).text
     for lang in lang_dt.keys():
@@ -51,7 +52,7 @@ def visit_next_page(content):
         print "next page not found"
         return None
         
-    post_data = {'txtsearch' : '', 'fcat': 8, 'iCat': 0, 'Country': 0, 'qExp':0, 'qAge':0, 'qJobNature': 0, 'qJobLevel': 0, 'qPosted': 0, 'qDeadline': 0, 'Newspaper': 0, 'hidOrder': '%27%27', 'hidJobSearch': 'JobSearch', 'MPostings': '', 'ver': '', 'qOT': '', 'pg': result[0]}
+    post_data = {} # you have to find the post data
     
     url = 'http://joblist.bdjobs.com/JobSearch.asp'
     content = get_content(url, post_data)
@@ -74,7 +75,7 @@ def main(url):
           
 if __name__ == "__main__":
     print "Program started"
-    url = 'http://joblist.bdjobs.com/jobsearch.asp?fcatId=8&icatId='
+    url = 'http://joblist.bdjobs.com/' 
     main(url)
     for item in lang_dt:
         print item, lang_dt[item]
