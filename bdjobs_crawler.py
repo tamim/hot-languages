@@ -2,6 +2,7 @@ import requests
 import time
 import sys
 import re
+import json
 from bs4 import BeautifulSoup
 
 lang_dt = {'php' : 0, 'python': 0, 'c++': 0, 'c#': 0, 'java': 0, 'ruby': 0, 'asp': 0, 'perl': 0}
@@ -25,12 +26,22 @@ def parse_job_description(url):
     content = get_content(url)
     soup = BeautifulSoup(content)
     text = soup.find("div", attrs={"class":"job_detail_left_wrapper"}).text
+    try:
+        nov = int(soup.find("div", attrs={"class":"job_nov_d"}).text)
+    except AttributeError:
+        print "nov not found"
+        nov = 1 #assuming 1 vacancy
+    except ValueError:
+        print "nov value error"
+        print soup.find("div", attrs={"class":"job_nov_d"}).text
+        nov = 1 #assuming 1 vacancy
+    print nov
     for lang in lang_dt.keys():
         pattern_lang = re.compile(r'\W({})\W'.format(re.escape(lang)))
         result = re.findall(pattern_lang, text)
         #print lang, result      
         if len(result) > 0:
-            lang_dt[lang] += 1
+            lang_dt[lang] += nov
             
                         
 def process_job_urls(content):
@@ -39,7 +50,6 @@ def process_job_urls(content):
     for item in job_list:
         job_url = 'http://joblist.bdjobs.com/' + item.find('a')['href']
         parse_job_description(job_url)
-    return content
     
     
 def visit_next_page(content):
@@ -70,11 +80,15 @@ def main(url):
             break
         time.sleep(1)
         print lang_dt
+        break
         
           
 if __name__ == "__main__":
     print "Program started"
     url = 'http://joblist.bdjobs.com/jobsearch.asp?fcatId=8&icatId='
     main(url)
+    with open("jobs.json", "w") as fp:
+        json.dump(lang_dt, fp, sort_keys = True)
     for item in lang_dt:
         print item, lang_dt[item]
+        
